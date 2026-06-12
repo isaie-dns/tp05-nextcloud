@@ -1,7 +1,7 @@
 
 # Application Load Balancer (public, cross-AZ)
 resource "aws_lb" "main" {
-  name               = "${local.name_prefix}-alb"
+  name               = "${local.name_prefix}-alb-lill"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]

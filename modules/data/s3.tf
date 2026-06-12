@@ -4,7 +4,7 @@
 
 resource "aws_s3_bucket" "primary" {
   bucket        = local.primary_bucket_name
-  force_destroy = true 
+  force_destroy = true
 
   tags = merge(local.common_tags, {
     Name = local.primary_bucket_name
@@ -67,10 +67,20 @@ data "aws_iam_policy_document" "primary_deny_insecure" {
 }
 
 resource "aws_s3_bucket_policy" "primary" {
-  bucket     = aws_s3_bucket.primary.id
-  policy     = data.aws_iam_policy_document.primary_deny_insecure.json
-  depends_on = [aws_s3_bucket_public_access_block.primary]
+  bucket = aws_s3_bucket.logs.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = { AWS = "arn:aws:iam::009996454398:root" } # ID du compte ELB pour eu-west-3
+        Action    = "s3:PutObject"
+        Resource  = "${aws_s3_bucket.logs.arn}/AWSLogs/039497794217/*"
+      }
+    ]
+  })
 }
+
 
 # =============================================================================
 # BUCKET LOGS — access logs ALB

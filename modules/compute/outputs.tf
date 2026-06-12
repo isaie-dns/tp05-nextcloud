@@ -14,8 +14,8 @@ output "asg_name" {
 }
 
 output "nextcloud_url" {
-  value       = "https://${aws_lb.main.dns_name}"
-  description = "URL finale Nextcloud a ouvrir dans le navigateur"
+  value       = try("https://${aws_lb.main.dns_name}", null)
+  description = "URL d'accès à Nextcloud via l'ALB"
 }
 
 output "launch_template_id" {

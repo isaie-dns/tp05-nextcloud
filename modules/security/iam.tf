@@ -1,52 +1,27 @@
-# =============================================================================
-# modules/security/iam.tf
-# ROLE 5 — Security Engineer (Patch de contournement appliqué par le Platform Lead)
-#
-# =============================================================================
+data "aws_iam_policy_document" "app_assume_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
 
-# 1. Récupération du rôle IAM pré-créé par le formateur (Pas de création = Pas de blocage)
-data "aws_iam_role" "app" {
-  name = "LabInstanceRole"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
 }
 
-# 2. Récupération du profil d'instance pré-créé associé au rôle
-data "aws_iam_instance_profile" "app" {
-  name = "LabInstanceRole"
+resource "aws_iam_role" "app" {
+  name                 = "${var.project_name}-${var.environment}-app-role"
+  assume_role_policy   = data.aws_iam_policy_document.app_assume_role.json
+  permissions_boundary = "arn:aws:iam::039497794217:policy/formation-permissions-boundary-paris"
+  tags = {
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "terraform"
+  }
 }
 
-# 3. Injection de la politique Secrets Manager sur le rôle de formation existant
-resource "aws_iam_role_policy" "app_secrets" {
-  name = "${local.name_prefix}-app-secrets"
-  role = data.aws_iam_role.app.name # Attachement direct sur le nom du rôle récupéré
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = ["secretsmanager:GetSecretValue"]
-      Resource = [
-        aws_secretsmanager_secret.db_password.arn,
-        aws_secretsmanager_secret.admin_password.arn
-      ]
-    }]
-  })
-}
-
-# 4. Injection de la politique KMS sur le rôle de formation existant
-resource "aws_iam_role_policy" "app_kms" {
-  name = "${local.name_prefix}-app-kms"
-  role = data.aws_iam_role.app.name # Attachement direct sur le nom du rôle récupéré
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:GenerateDataKey"
-      ]
-      Resource = [aws_kms_key.main.arn]
-    }]
-  })
+resource "aws_iam_instance_profile" "app" {
+  name = "${var.project_name}-${var.environment}-app-profile"
+  role = aws_iam_role.app.name
 }
