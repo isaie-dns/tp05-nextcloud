@@ -18,7 +18,8 @@ resource "aws_iam_openid_connect_provider" "github" {
 
 # Role assumable par le workflow du repo <org>/<repo> uniquement
 resource "aws_iam_role" "github_actions" {
-  name = "kolab-github-actions-tf-plan"
+  name                 = "kolab-github-actions-tf-plan"
+  permissions_boundary = "arn:aws:iam::039497794217:policy/formation-permissions-boundary-paris"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
