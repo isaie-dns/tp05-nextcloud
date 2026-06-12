@@ -1,10 +1,40 @@
 # -----------------------------------------------------------------------------
 # modules/compute/main.tf
-#
-# Point d'entree du module compute. Les ressources sont organisees par fichier
-# pour faciliter la review :
-#   - tls.tf   : certificat self-signed (tls_private_key, tls_self_signed_cert, ACM)
-#   - alb.tf   : Application Load Balancer, target group, listeners
-#   - asg.tf   : AMI data source, Launch Template, Auto Scaling Group
-#   - locals.tf / variables.tf / outputs.tf : interface du module
+# Data sources + locals transversaux du module compute
 # -----------------------------------------------------------------------------
+
+data "aws_ami" "al2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
+locals {
+  name_prefix = "${var.project_name}-${var.environment}"
+
+  public_subnet_ids_list      = values(var.public_subnet_ids)
+  private_app_subnet_ids_list = values(var.private_app_subnet_ids)
+
+  common_tags = {
+    Project     = var.project_name
+    Environment = var.environment
+    ManagedBy   = "terraform"
+    Module      = "compute"
+    Owner       = "etudiant07"
+  }
+}
+
