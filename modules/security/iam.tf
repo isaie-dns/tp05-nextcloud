@@ -17,8 +17,9 @@ data "aws_iam_policy_document" "assume_ec2" {
 }
 
 resource "aws_iam_role" "app" {
-  name               = "${local.name_prefix}-app-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_ec2.json
+  name                 = "${local.name_prefix}-app-role"
+  permissions_boundary = "arn:aws:iam::039497794217:policy/formation-permissions-boundary-paris"
+  assume_role_policy   = data.aws_iam_policy_document.assume_ec2.json
 
   tags = merge(local.common_tags, {
     Name = "${local.name_prefix}-app-role"
