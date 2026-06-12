@@ -1,33 +1,23 @@
 # =============================================================================
 # modules/security/iam.tf
-# IAM role + instance profile pour les EC2 Nextcloud.
-# Policies scopees : Secrets Manager + KMS Decrypt.
-# (La policy S3 est declaree dans envs/dev/main.tf pour eviter
-#  la dependance circulaire entre les modules security et data.)
+# ROLE 5 — Security Engineer (Patch de contournement appliqué par le Platform Lead)
+#
 # =============================================================================
 
-data "aws_iam_policy_document" "assume_ec2" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["ec2.amazonaws.com"]
-    }
-  }
+# 1. Récupération du rôle IAM pré-créé par le formateur (Pas de création = Pas de blocage)
+data "aws_iam_role" "app" {
+  name = "LabInstanceRole"
 }
 
-resource "aws_iam_role" "app" {
-  name               = "${local.name_prefix}-app-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_ec2.json
-
-  tags = merge(local.common_tags, {
-    Name = "${local.name_prefix}-app-role"
-  })
+# 2. Récupération du profil d'instance pré-créé associé au rôle
+data "aws_iam_instance_profile" "app" {
+  name = "LabInstanceRole"
 }
 
+# 3. Injection de la politique Secrets Manager sur le rôle de formation existant
 resource "aws_iam_role_policy" "app_secrets" {
   name = "${local.name_prefix}-app-secrets"
-  role = aws_iam_role.app.id
+  role = data.aws_iam_role.app.name # Attachement direct sur le nom du rôle récupéré
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -42,9 +32,10 @@ resource "aws_iam_role_policy" "app_secrets" {
   })
 }
 
+# 4. Injection de la politique KMS sur le rôle de formation existant
 resource "aws_iam_role_policy" "app_kms" {
   name = "${local.name_prefix}-app-kms"
-  role = aws_iam_role.app.id
+  role = data.aws_iam_role.app.name # Attachement direct sur le nom du rôle récupéré
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -57,24 +48,5 @@ resource "aws_iam_role_policy" "app_kms" {
       ]
       Resource = [aws_kms_key.main.arn]
     }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "app_ssm" {
-  role       = aws_iam_role.app.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-resource "aws_iam_role_policy_attachment" "app_cloudwatch" {
-  role       = aws_iam_role.app.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-}
-
-resource "aws_iam_instance_profile" "app" {
-  name = "${local.name_prefix}-app-profile"
-  role = aws_iam_role.app.name
-
-  tags = merge(local.common_tags, {
-    Name = "${local.name_prefix}-app-profile"
   })
 }

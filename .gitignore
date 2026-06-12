@@ -1,6 +1,20 @@
-
-# Terraform
-**/.terraform/
-*.tfstate
-*.tfstate.backup
+# Fichiers de cache de travail Terraform
+.terraform/
 .terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Variables privées à ne JAMAIS pousser sur GitHub
+*.tfvars
+!*.tfvars.example
+
+# Logs de crash
+crash.log
+crash.*.log
+
+# OS & Éditeurs
+.DS_Store
+.vscode/
+.idea/
+*.swp

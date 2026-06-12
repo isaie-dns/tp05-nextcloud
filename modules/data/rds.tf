@@ -1,13 +1,14 @@
-#rds.tf 
-# Lecture du mot de passe DB depuis Secrets Manager (créé par le Rôle 5)
+# =============================================================================
+# modules/data/rds.tf
+# ROLE 4 — Data Engineer (Corrigé par le Platform Lead pour éviter les collisions)
+# =============================================================================
 
+# Lecture du mot de passe DB depuis Secrets Manager (créé par le Rôle 5)
 data "aws_secretsmanager_secret_version" "db_password" {
   secret_id = var.db_password_secret_arn
 }
 
-
 # DB Subnet Group : RDS a besoin d'au moins 2 subnets sur 2 AZ
-
 resource "aws_db_subnet_group" "nextcloud" {
   name       = "${local.name_prefix}-db-subnets"
   subnet_ids = values(var.private_db_subnet_ids)
@@ -17,10 +18,9 @@ resource "aws_db_subnet_group" "nextcloud" {
   })
 }
 
-# Parameter Group : paramètres PostgreSQL personnalisés
-
+# Parameter Group : paramètres PostgreSQL personnalisés (Nom rendu unique pour le TP)
 resource "aws_db_parameter_group" "nextcloud" {
-  name   = "${local.name_prefix}-pg16"
+  name   = "${local.name_prefix}-pg16-theo" # <- Suffixe unique ajouté pour éviter le DBParameterGroupAlreadyExists
   family = "postgres16"
 
   parameter {
@@ -48,9 +48,7 @@ resource "aws_db_parameter_group" "nextcloud" {
   })
 }
 
-
 # Instance RDS PostgreSQL 16 Multi-AZ chiffrée KMS
-
 resource "aws_db_instance" "nextcloud" {
   identifier = "${local.name_prefix}-nextcloud"
 

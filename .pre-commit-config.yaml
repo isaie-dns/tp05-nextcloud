@@ -1,0 +1,48 @@
+# =============================================================================
+# .pre-commit-config.yaml
+# Hooks de validation et de qualité de code (Local & CI)
+# Installation : pip install pre-commit && pre-commit install
+# Exécution : pre-commit run --all-files
+# =============================================================================
+
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.96.2
+    hooks:
+      - id: terraform_fmt
+        name: TF Format check
+
+      - id: terraform_validate
+        name: TF Validation check
+
+      - id: terraform_tflint
+        name: TF Linter (TFLint)
+        args:
+          - --args=--minimum-failure-severity=warning
+
+      - id: terraform_tfsec
+        name: Security Static Analysis (tfsec)
+        args:
+          - --args=--minimum-severity=MEDIUM
+
+      - id: terraform_docs
+        name: Automated README Generation
+        args:
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+          - --hook-config=--create-file-if-not-exist=true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+        name: Detect unresolved merge conflicts
+
+      - id: detect-private-key
+        name: Prevent private keys leaks
+
+      - id: end-of-file-fixer
+        name: Ensure files end with a newline
+
+      - id: trailing-whitespace
+        name: Remove trailing whitespaces
