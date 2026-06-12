@@ -6,6 +6,12 @@
 data "aws_ami" "al2023" {
   most_recent = true
   owners      = ["amazon"]
+# modules/compute/main.tf
+
+
+data "aws_ami" "al2023" {
+  most_recent = true
+  owners      = ["etudiant07"]
 
   filter {
     name   = "name"
