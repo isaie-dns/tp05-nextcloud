@@ -291,7 +291,7 @@ Le rôle de Platform Lead implique une dépendance forte sur les outputs de tous
 
 La structure d'un projet Terraform multi-modules en équipe, la gestion du backend S3 avec `use_lockfile`, et l'importance de définir les interfaces (outputs) avant même d'écrire les ressources pour débloquer les dépendances en aval.
 
-**Hash du dernier commit significatif** : `bc9b6f5`
+**Hash du dernier commit significatif** : `f6e23f6`
 
 ---
 
@@ -366,7 +366,8 @@ RDS Multi-AZ avec chiffrement KMS impose que la CMK soit créée avant l'instanc
 
 La configuration RDS avec subnet group et chiffrement at-rest via KMS CMK, la mise en place du versioning S3 et des lifecycle rules, et la différence entre chiffrement SSE-KMS (CMK gérée) et SSE-S3 (clé AWS gérée) selon le niveau de contrôle souhaité.
 
-**Hash du dernier commit significatif** : `f6e23f6`
+**Hash du dernier commit significatif** : `bc9b6f5`
+
 
 ---
 
