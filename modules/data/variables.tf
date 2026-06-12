@@ -2,7 +2,6 @@
 variable "vpc_id" {
   type        = string
   description = "ID du VPC (output du module networking)"
-  default     = aws_vpc.main.id
 }
 
 variable "private_db_subnet_ids" {
